@@ -10,6 +10,22 @@
 | database. Just tell the factory how a default model should look.
 |
 */
+use App\Posts;
+use App\User;
+
+$user_id= User::all()->pluck('id')->toArray();
+$post_id= Posts::all()->pluck('id')->toArray();
+
+
+
+
+
+
+
+/**/
+
+
+
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(App\User::class, function (Faker\Generator $faker) {
@@ -20,5 +36,30 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'email' => $faker->unique()->safeEmail,
         'password' => $password ?: $password = bcrypt('secret'),
         'remember_token' => str_random(10),
+    ];
+});
+
+
+$factory->define(App\Posts::class, function (Faker\Generator $faker) use($user_id) {
+    static $password;
+
+    return [
+        'title' => $faker->sentence($nbWords = 6, $variableNbWords = true),
+        'description' => $faker->text($maxNbChars = 300),
+        'cover_image' => $faker->imageUrl(100, 100, 'business') ,
+        'user_id' => $faker->randomElement($user_id)
+    ];
+});
+
+
+
+$factory->define(App\Comments::class, function (Faker\Generator $faker) use($user_id, $post_id) {
+    static $password;
+
+    return [
+        'user_id' => $faker->randomElement($user_id),
+        'post_id' => $faker->randomElement($post_id),
+        'description' => $faker->text($maxNbChars = 300),
+
     ];
 });
