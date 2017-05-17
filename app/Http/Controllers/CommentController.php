@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Posts;
-use function foo\func;
+use App\Comments;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class PostController extends Controller
+class CommentController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct()
+    {
+        $this->middleware('auth', ['only' => ['store']]);
+    }
+
     public function index()
     {
-
-        $posts = Posts::paginate(10);
-        return view('posts.index', compact('posts'));
+        //
     }
 
     /**
@@ -38,7 +42,17 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = Auth::user();
+        $comment = new Comments(['post_id' => $request->post_id,
+            'description' => $request->description,
+        ]);
+
+
+        $info = $user->comments()->save($comment);
+      if (!empty($info)){
+          return redirect()->route('posts.show', ['id' => $request->post_id]);
+      }
+
     }
 
     /**
@@ -49,12 +63,7 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $post = Posts::with(['comments' => function ($query) {
-            $query->orderBy('id', 'desc');
-            $query->with('user');
-
-        }])->where('id', $id)->first();
-        return view('posts.show', compact('post'));
+        //
     }
 
     /**
